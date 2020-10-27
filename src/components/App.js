@@ -1,51 +1,67 @@
 import React, { Component, useState } from "react";
-import '../styles/App.css';
+import "../styles/App.css";
 
-class App extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        renderBall: false, //variable needed to be changed
-        posi: 0,
-        ballPosition: { left: "0px" }
-      };
-      this.renderChoice = this.renderChoice.bind(this);
-      this.buttonClickHandler = this.buttonClickHandler.bind(this);
+const App = () => {
+  const [renderBall, setRenderBall] = React.useState(false);
+  const [x, setX] = React.useState(0);
+  const [y, setY] = React.useState(0);
+  const [ballPosition, setBallPosition] = React.useState({
+    left: "0px",
+    top: "0px"
+  });
+  const reset = () => {
+    setRenderBall(false);
+    setX(0);
+    setY(0);
+    setBallPosition({ left: "0px", right: "0px" });
+  };
+
+  const startHandle = () => {
+    setRenderBall(true);
+  };
+
+  const handleBallMovement = (event) => {
+    const copyNew = { ...ballPosition };
+    if (event.keyCode === 39) {
+      copyNew.left = +copyNew.left.slice(0, -2) + 5 + "px";
+    } else if (event.keyCode === 40) {
+      copyNew.top = +copyNew.top.slice(0, -2) + 5 + "px";
+    } else if (event.keyCode === 37) {
+      copyNew.left = +copyNew.left.slice(0, -2) - 5 + "px";
     }
-  
-    //call back function
-    buttonClickHandler() {
-      const newCopy1 = { ...this.state };
-      newCopy1.renderBall = true;
-      this.setState(newCopy1);
+    if (event.keyCode === 38) {
+      copyNew.top = +copyNew.top.slice(0, -2) - 5 + "px";
     }
-    renderChoice() {
-      if (this.state.renderBall) {
-        return <div className="ball" style={this.state.ballPosition}></div>;
-      } else
-        return (
-          <button onClick={this.buttonClickHandler}>Click For One Ball</button>
-        );
+    setBallPosition(copyNew);
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleBallMovement);
+    return () => {
+      document.removeEventListener("keydown", handleBallMovement);
+    };
+  });
+
+  const renderChoice = () => {
+    if (renderBall === true) {
+      return <div className="ball" style={ballPosition}></div>;
+    } else {
+      return (
+        <button className="start" onClick={startHandle}>
+          Start
+        </button>
+      );
     }
-  
-    //bind ArrowRight keydown event
-    componentDidMount() {
-      document.addEventListener("keydown", (event) => {
-        if (event.keyCode === 39) {
-          const newCopy2 = { ...this.state };
-          newCopy2.posi = newCopy2.posi + 5;
-          newCopy2.ballPosition = {
-            left: newCopy2.posi + "px"
-          };
-          this.setState(newCopy2);
-        }
-      });
-    }
-  
-    render() {
-      return <div className="playground">{this.renderChoice()}</div>;
-    }
-  }
-  
-  export default App;
-  
+  };
+
+  return (
+    <div className="playground">
+      <button onClick={reset} className="reset">
+        Reset
+      </button>
+      {renderChoice()}
+    </div>
+  );
+};
+
+export default App;
